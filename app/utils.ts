@@ -74,3 +74,11 @@ export function useUser(): User {
 export function validateEmail(email: unknown): email is string {
   return typeof email === "string" && email.length > 3 && email.includes("@");
 }
+
+export function formatAmount(amount: number, currency: string) {
+  return new Intl.NumberFormat("es-AR", {
+    currency,
+    style: "currency",
+    maximumFractionDigits: currency === "BTC" ? 20 : 2,
+  }).format(amount);
+}

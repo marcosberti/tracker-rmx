@@ -16,7 +16,9 @@
     "pretest:e2e:run": "npm run build",
     "test:e2e:run": "cross-env PORT=8811 start-server-and-test start:mocks http://localhost:8811 \"npx cypress run\"",
     "typecheck": "tsc && tsc -p cypress",
-    "validate": "run-p \"test -- --run\" lint typecheck test:e2e:run"
+    "validate": "run-p \"test -- --run\" lint typecheck test:e2e:run",
+    "migrate": "prisma migrate dev && prisma db seed",
+    "seed": "prisma db seed"
   },
   "prettier": {},
   "eslintIgnore": [
@@ -26,14 +28,21 @@
   ],
   "dependencies": {
     "@prisma/client": "^4.16.2",
+    "@radix-ui/react-slot": "^1.0.2",
     "@remix-run/css-bundle": "^2.2.0",
     "@remix-run/node": "^2.2.0",
     "@remix-run/react": "^2.2.0",
     "@remix-run/serve": "^2.2.0",
     "bcryptjs": "^2.4.3",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.0.0",
     "isbot": "^3.7.0",
+    "lucide-react": "^0.292.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "recharts": "^2.10.1",
+    "tailwind-merge": "^2.0.0",
+    "tailwindcss-animate": "^1.0.7",
     "tiny-invariant": "^1.3.1"
   },
   "devDependencies": {
