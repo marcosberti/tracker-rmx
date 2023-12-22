@@ -7,77 +7,157 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model User {
+model Users {
   id    String @id @default(cuid())
   email String @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  password Password?
-  accounts Account?
-  transactions Transaction?
+  password Passwords?
+  accounts Accounts[]
+  transactions Transactions[]
+  installments Installments[]
+  scheduled Scheduled[]
+  currencies Currencies[]
+  categories Categories[]
 }
 
-model Password {
+model Passwords {
   hash String
 
-  user   User   @relation(fields: [userId], references: [id])
+  user   Users   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @unique
 }
 
-model Currency {
+model Currencies {
   id String @id @default(cuid())
+
   name String @unique
   code String @unique
 
-  accounts Account[]
-  transactions Transaction[]
+  accounts Accounts[]
+  transactions Transactions[]
+  installments Installments[]
+  scheduled Scheduled[]
+
+  createdAt DateTime @default(now())
+
+  user   Users   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
 }
 
-model Category {
+model Categories {
   id String @id @default(cuid())
   
-  name String
+  name String @unique
   icon String
   color String
 
-  transaction Transaction[]
+  transaction Transactions[]
+  installments Installments[]
+  scheduled Scheduled[]
+
+  createdAt DateTime @default(now())
+
+  user   Users   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
 }
 
-model Account {
+model Accounts {
   id String @id @default(cuid())
 
-  name String
+  name String @unique
   balance Decimal
   icon String
   color String
-  default Boolean
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  currency  Currency  @relation(fields: [currencyId], references: [id])
-  currencyId String @unique
+  main Boolean
   
-  user   User   @relation(fields: [userId], references: [id])
-  userId String @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  currency  Currencies  @relation(fields: [currencyId], references: [id])
+  currencyId String
+  
+  user   Users   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  installments Installments[]
+  scheduled Scheduled[]
 }
 
-model Transaction {
+model Transactions {
   id  String  @id @default(cuid())
 
   amount Decimal
-  description String
+  title String
+  description String?
   type String
   createdAt DateTime @default(now())
 
-  currency  Currency  @relation(fields: [currencyId], references: [id])
-  currencyId String @unique
-  
-  user   User   @relation(fields: [userId], references: [id])
-  userId String @unique
+  installment Installments? @relation(fields: [installmentId], references: [id])
+  installmentId String?
 
-  category   Category   @relation(fields: [categoryId], references: [id])
-  categoryId String @unique
+  scheduled Scheduled? @relation(fields: [scheduledId], references: [id])
+  scheduledId String?
+
+  currency  Currencies  @relation(fields: [currencyId], references: [id])
+  currencyId String
+  
+  user   Users   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  category   Categories   @relation(fields: [categoryId], references: [id])
+  categoryId String
+}
+
+model Installments {
+  id String @id @default(cuid())
+
+  amount Decimal
+  title String
+  description String?
+  installments Int
+  paidInstallments Int
+  active Boolean @default(true)
+  firstPaymentDate DateTime @default(now())
+
+  transactions Transactions[]
+
+  account Accounts @relation(fields: [accountId], references: [id])
+  accountId String
+
+  currency  Currencies  @relation(fields: [currencyId], references: [id])
+  currencyId String
+
+  user   Users   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  category   Categories   @relation(fields: [categoryId], references: [id])
+  categoryId String
+}
+
+model Scheduled {
+  id String @id @default(cuid())
+
+  amount Decimal
+  title String
+  description String?
+  from DateTime
+  to DateTime?
+  active Boolean @default(true)
+
+  transactions Transactions[]
+
+  account Accounts @relation(fields: [accountId], references: [id])
+  accountId String
+
+  currency  Currencies  @relation(fields: [currencyId], references: [id])
+  currencyId String
+
+  user   Users   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  category   Categories   @relation(fields: [categoryId], references: [id])
+  categoryId String
 }
