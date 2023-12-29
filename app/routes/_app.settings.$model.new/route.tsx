@@ -100,12 +100,12 @@ export default function SettingIndexRoute() {
   const { errors } = useActionData<typeof action>() ?? {};
   const navigate = useNavigate();
   const navigation = useNavigation();
+  const isSubmiting = navigation.state === "submitting";
   const handleChange = () => {
     if (isSubmiting) return;
     navigate("..");
   };
 
-  const isSubmiting = navigation.state === "submitting";
   let FormFields;
 
   if (model === MODELS.CURRENCIES) {

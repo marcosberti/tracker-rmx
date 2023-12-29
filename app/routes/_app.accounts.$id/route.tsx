@@ -4,12 +4,14 @@ import invariant from "tiny-invariant";
 
 import { Tabs } from "~/components/components";
 import { getAccountById } from "~/models/accounts.server";
+import { requireUserId } from "~/session.server";
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const userId = await requireUserId(request);
   const accountId = params.id;
   invariant(typeof accountId === "string", "accountId is required");
 
-  const account = await getAccountById(accountId, { name: true });
+  const account = await getAccountById(userId, accountId, { name: true });
 
   return json({ account });
 }

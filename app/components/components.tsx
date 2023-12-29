@@ -1,4 +1,10 @@
-import { Link, useLocation } from "@remix-run/react";
+import {
+  Form,
+  Link,
+  useLocation,
+  useSearchParams,
+  useSubmit,
+} from "@remix-run/react";
 import { icons as LucideIcons, ChevronsUpDown } from "lucide-react";
 import React from "react";
 
@@ -15,6 +21,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
+import { getParamsMonth } from "~/utils";
+
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 
 export type LucideIconType = keyof typeof LucideIcons;
 
@@ -41,14 +51,22 @@ export function IconsCombobox({ name }: IconsComboboxInterface) {
   const [icon, setIcon] = React.useState("");
 
   let icons = Object.keys(LucideIcons) as (keyof typeof LucideIcons)[];
+
   if (term) {
     icons = icons.filter((icon) => icon.toLocaleLowerCase().includes(term));
+  } else {
+    icons = icons.slice(0, 50);
   }
+
+  const handleOpenChange = (state: boolean) => {
+    setTerm("");
+    setOpen(state);
+  };
 
   return (
     <>
       <input name={name} value={icon} type="hidden" />
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover open={open} onOpenChange={handleOpenChange}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
@@ -62,7 +80,10 @@ export function IconsCombobox({ name }: IconsComboboxInterface) {
         </PopoverTrigger>
         <PopoverContent className=" p-0">
           <Command>
-            <CommandInput placeholder="Search an icon..." />
+            <CommandInput
+              placeholder="Search an icon..."
+              onValueChange={(value) => setTerm(value)}
+            />
             <CommandEmpty>No icons found.</CommandEmpty>
             <CommandGroup className="h-[250px] overflow-y-scroll">
               {icons.map((icon) => (
@@ -110,12 +131,29 @@ export function Tabs({ tabs }: { tabs: string[] }) {
           <Link to={tab} className="text-sm font-light">
             {tab}
           </Link>
-          {location.pathname.endsWith(tab) ? (
-            <div className="absolute h-[2px] w-[50%] bg-primary bottom-0 left-[50%] translate-x-[-50%]" />
-          ) : null}
+          <div
+            className={`absolute h-[2px] w-[50%] bg-primary bottom-0 left-[50%] translate-x-[-50%] transition-all duration-300 ease-out ${
+              location.pathname.endsWith(tab) ? "opacity-100" : "opacity-0"
+            }`}
+          />
         </div>
       ))}
     </div>
+  );
+}
+
+export function MonthFilter() {
+  const submit = useSubmit();
+  const [searchParams] = useSearchParams();
+  const { month, year } = getParamsMonth(searchParams);
+  const value = `${year}-${month + 1}`;
+  return (
+    <Form method="get" onChange={(e) => submit(e.currentTarget)}>
+      <Label htmlFor="month" className="sr-only">
+        Month
+      </Label>
+      <Input id="month" name="month" type="month" value={value} />
+    </Form>
   );
 }
 

@@ -1,8 +1,6 @@
 import type { Accounts } from "@prisma/client";
-import { endOfMonth, formatISO } from "date-fns";
 
 import { prisma } from "~/db.server";
-import { formatAmount } from "~/utils";
 
 export type { Accounts } from "@prisma/client";
 
@@ -33,51 +31,72 @@ export async function getAccountsByUserId(userId: string) {
 interface OptionsType {
   where: {
     id: string;
+    userId: string;
   };
   select?: Record<string, boolean>;
 }
-export async function getAccountById(id: Accounts["id"], fields = {}) {
+export async function getAccountById(
+  userId: Accounts["userId"],
+  id: Accounts["id"],
+  fields = {},
+) {
   const options: OptionsType = {
-    where: { id },
+    where: { id, userId },
   };
   if (fields) {
     options.select = fields;
   }
-  return prisma.accounts.findUnique(options);
+  return prisma.accounts.findFirst(options);
 }
 
 export async function getAccountBalance(
+  userId: Accounts["userId"],
   id: Accounts["id"],
-  month: number,
-  year: number,
 ) {
-  // TODO: get transactions with datefilters
-  // const date = new Date(year, month, 1);
-  // const startOfMonthDate = formatISO(date);
-  // const endOfMonthDate = formatISO(endOfMonth(date));
-
-  const account = await prisma.accounts.findUnique({
+  return prisma.accounts.findFirst({
     select: {
+      id: true,
+      name: true,
+      userId: true,
       balance: true,
       currency: {
         select: {
+          id: true,
+          name: true,
           code: true,
         },
       },
     },
-    where: {
-      id,
-    },
+    where: { id, userId },
   });
-
-  return {
-    balance: formatAmount(Number(account!.balance), account!.currency.code),
-    income: formatAmount(0, account!.currency.code),
-    expense: formatAmount(0, account!.currency.code),
-  };
 }
 
-export async function deleteAccountById(id: Accounts["id"]) {
+export async function getAccountCurrency(
+  userId: Accounts["userId"],
+  id: Accounts["id"],
+) {
+  return prisma.accounts.findFirst({
+    select: {
+      currency: {
+        select: {
+          id: true,
+          name: true,
+          code: true,
+        },
+      },
+    },
+    where: { id, userId },
+  });
+}
+
+export async function deleteAccountById(
+  userId: Accounts["userId"],
+  id: Accounts["id"],
+) {
+  const account = await prisma.accounts.findFirst({ where: { id, userId } });
+  if (!account) {
+    return Promise.reject("Account not found");
+  }
   return prisma.accounts.delete({ where: { id } });
 }
 

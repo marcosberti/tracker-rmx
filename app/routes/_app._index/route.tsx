@@ -9,7 +9,7 @@ import {
   getAccountsByUserId,
 } from "~/models/accounts.server";
 import { requireUserId } from "~/session.server";
-import { formatAmount } from "~/utils";
+import { formatAmount, getMonthLimits } from "~/utils";
 import { prefs } from "~/utils.server";
 
 import MonthlyChart from "./monthly-chart";
@@ -72,11 +72,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
       };
     }
 
+    // TODO: ver de donde sale
     const date = new Date();
+    const { from, to } = getMonthLimits(date.getFullYear(), date.getMonth());
     const { balance, income, expense } = await getAccountBalance(
+      userId,
       selectedAccountId,
-      date.getMonth(),
-      date.getFullYear(),
+      from,
+      to,
     );
     const account = accounts.find((a) => a.id === selectedAccountId);
     data.selectedAccountId = selectedAccountId;

@@ -28,7 +28,7 @@ export default function AccountsRoute() {
           </Button>
         </div>
         <div>
-          <ul>
+          <ul className="flex flex-col gap-4">
             {!accounts.length ? (
               <li className="w-full mt-8 text-center">
                 <p>You have no accounts yet</p>

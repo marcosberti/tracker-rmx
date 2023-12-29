@@ -1,5 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { useMatches } from "@remix-run/react";
+import { endOfMonth, format, startOfMonth } from "date-fns";
 import { useMemo } from "react";
 import colors from "tailwindcss/colors";
 
@@ -183,6 +184,37 @@ export function timer(time: number) {
   });
 }
 
-export function validateSimpleValue(value: string, prop: string) {
-  return value === "" ? `${prop} is required` : null;
+export function validateSimpleValue(value: string | number, prop: string) {
+  return !value ? `${prop} is required` : null;
+}
+
+export function getMonthLimits(year: number, month: number) {
+  const date = new Date(year, month, 1);
+  const from = startOfMonth(date);
+  const to = endOfMonth(date);
+
+  return { from: from.toISOString(), to: to.toISOString() };
+}
+
+export function getParamsMonth(params: URLSearchParams) {
+  const monthParam = params.get("month");
+
+  if (!monthParam) {
+    const date = new Date();
+    const month = date.getMonth();
+    const year = date.getFullYear();
+    return { month, year };
+  }
+
+  const [year, month] = monthParam.split("-");
+
+  return {
+    year: Number(year),
+    month: Number(month) - 1,
+  };
+}
+
+export function getMonthName(year: number, month: number) {
+  const date = new Date(year, month, 1);
+  return format(date, "MMMM");
 }

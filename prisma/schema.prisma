@@ -84,6 +84,7 @@ model Accounts {
 
   installments Installments[]
   scheduled Scheduled[]
+  transactions Transactions[]
 }
 
 model Transactions {
@@ -94,6 +95,11 @@ model Transactions {
   description String?
   type String
   createdAt DateTime @default(now())
+
+  childTransactions Transactions[] @relation("parentTransaction")
+
+  parentTransaction Transactions? @relation("parentTransaction", fields: [parentTransactionId], references: [id], onDelete: Cascade)
+  parentTransactionId String?
 
   installment Installments? @relation(fields: [installmentId], references: [id])
   installmentId String?
@@ -109,6 +115,9 @@ model Transactions {
 
   category   Categories   @relation(fields: [categoryId], references: [id])
   categoryId String
+
+  account Accounts @relation(fields: [accountId], references: [id])
+  accountId String
 }
 
 model Installments {
